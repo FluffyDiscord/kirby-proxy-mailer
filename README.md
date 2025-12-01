@@ -1,6 +1,9 @@
 ### .env
 ```dotenv
 
+# enable/disable proxying emails, set "false" for dev
+PROXY_MAILER_ENABLED=true
+
 # project domain
 BASE_URL=''
 

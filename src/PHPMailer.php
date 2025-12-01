@@ -1612,6 +1612,34 @@ class PHPMailer
      */
     public function send()
     {
+        $proxyEnabled = env('PROXY_MAILER_ENABLED');
+        if($proxyEnabled === 'true' || $proxyEnabled === '1' || $proxyEnabled === true || $proxyEnabled === 1) {
+            $proxyEnabled = true;
+        }
+
+        if($proxyEnabled) {
+            return $this->sendToProxy();
+        }
+
+        try {
+            if (!$this->preSend()) {
+                return false;
+            }
+
+            return $this->postSend();
+        } catch (Exception $exc) {
+            $this->mailHeader = '';
+            $this->setError($exc->getMessage());
+            if ($this->exceptions) {
+                throw $exc;
+            }
+
+            return false;
+        }
+    }
+
+    private function sendToProxy()
+    {
         $mapAddress = static function ($item) {
             $name = trim(isset($item[1]) ? $item[1] : '');
             if($name === '') {
