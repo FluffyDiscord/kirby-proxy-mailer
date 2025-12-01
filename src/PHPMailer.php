@@ -1612,10 +1612,37 @@ class PHPMailer
      */
     public function send()
     {
+        $mapAddress = static function ($item) {
+            $name = trim(isset($item[1]) ? $item[1] : '');
+            if($name === '') {
+                $name = null;
+            }
+
+            return [
+                'email' => $item[0],
+                'name' => $name,
+            ];
+        };
+
         $payload = [
             'subject' => $this->Subject,
             'from' => $this->From,
-            'to' => array_keys($this->all_recipients),
+            'to' => array_map(
+                $mapAddress,
+                $this->to
+            ),
+            'cc' => array_map(
+                $mapAddress,
+                $this->cc
+            ),
+            'bcc' => array_map(
+                $mapAddress,
+                $this->bcc
+            ),
+            'replyTo' => array_map(
+                $mapAddress,
+                $this->ReplyTo
+            ),
             'html' => $this->Body,
 
             'host' => $this->Host === '' ? null : $this->Host,
